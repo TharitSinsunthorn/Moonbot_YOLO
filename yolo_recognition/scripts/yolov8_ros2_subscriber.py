@@ -7,41 +7,34 @@ from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor, SingleThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
+from std_srvs.srv import SetBool
 
 import time
+from cv_bridge import CvBridge
 from yolov8_msgs.msg import Yolov8Inference
 
 bridge = CvBridge()
-
-# class Camera_subscriber(Node):
-    
-#   def __init__(self):
-#       super().__init__('camera_subscriber')
-
-#       self.subscription = self.create_subscription(
-#           Image,
-#           'camera/color/image_raw',
-#           self.camera_callback,
-#           10)
-#       self.subscription
-
-#   def camera_callback(self, data):
-#       global img
-#       img = bridge.imgmsg_to_cv2(data, "bgr8")
 
 class Yolo_subscriber(Node):
 
     def __init__(self):
         super().__init__('yolo_subscriber')
 
-        
+        ##### Subcriber ##### 
         self.subscription = self.create_subscription(
             Yolov8Inference,
             '/Yolov8_Inference',
             self.yolo_callback,
             10)
         self.subscription
+        ##### Subcriber
+
+        ##### Service Client #####
+        self.Leg_ConnectionClient = self.create_client(SetBool, 'leg_trigger')
+        while not self.Leg_ConnectionClient.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.req = SetBool.Request()
+        ##### Service Client #####
 
         # self.timer = self.create_timer(1.0, self.timer_callback)
 
@@ -56,6 +49,11 @@ class Yolo_subscriber(Node):
 
 
         # self.img_pub = self.create_publisher(Image, "/inference_result_cv2", 1)
+
+    def send_request(self, request):
+        self.req.data = request
+        self.future = self.Leg_ConnectionClient.call_async(self.req)
+        
 
     def yolo_callback(self, data):
         # global img
@@ -76,34 +74,23 @@ class Yolo_subscriber(Node):
         #   time.sleep(3)
             self.leg_detected = True
             self.last_leg_detected == time.time()
-            self.get_logger().info(f"leg is detected")
+            self.get_logger().info(f"leg is connected")
+            self.send_request(True)
 
         elif "leg" not in self.class_name and self.leg_detected == True:
             self.leg_detected = False
             self.get_logger().info(f"leg is disconnected")
-        #         # self.get_logger().infor()
-        #     # cv2.rectangle(img, (top, left), (bottom, right), (255, 255, 0))
+            self.send_request(False)
+
+        
         elif "leg" in self.class_name and self.leg_detected == True:
-            self.get_logger().info(f"leg is connected")
+            self.get_logger().info(f"leg is detected")
 
         elif "leg" not in self.class_name and self.leg_detected == False:
             self.get_logger().info(f"No leg detected")
 
         self.class_name.clear()
 
-        # patient = time.time() - self.last_leg_detected
-        # if not self.leg_detected and patient >= 5:
-        #     self.get_logger().info("No leg connection")
-
-        # self.cnt = 0 
-        # img_msg = bridge.cv2_to_imgmsg(img)
-        # self.img_pub.publish(img_msg)
-
-        ###### New logic
-        # if "leg" in data.yolov8_inference[class_name]:
-        #     self.get_logger().info("found leg")
-        # else:
-        #     self.get_logger().info("No leg found")
 
     def timer_callback(self):
         # Your periodic processing logic here

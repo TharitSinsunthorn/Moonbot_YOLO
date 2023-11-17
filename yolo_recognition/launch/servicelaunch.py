@@ -1,49 +1,14 @@
-# from launch import LaunchService
-# from yolo import generate_launch_description
-
-# import time
-
-# launch_service = LaunchService()
-# launch_service.include_launch_description(generate_launch_description())
-# # launch_service.run_async()
-
-# def main():
-#     condition = input("input: ")
-
-
-#     # if condition:
-#     #     # launch_service.run()
-#     #     print(condition)_
-
-#     try:
-#         condition = bool(int(condition))
-#     except ValueError:
-#         print("Invalid input. Please enter either 0 or 1.")
-#         condition = False
-
-
-#     if condition:
-#         launch_service.run()
-#     elif not condition:
-#         launch_service.shutdown()
-
-#         # time.sleep(5)
-#         # launch_service.shutdown()
-#         # print(condition)
-
-# if __name__ == "__main__":
-#     main()
-
 import time
 import asyncio
 import multiprocessing
 
 from launch import LaunchService
-from yolo import generate_launch_description
+# from yolo import generate_launch_description
+from test import generate_launch_description
 
 import rclpy
 from rclpy.node import Node
-from std_srvs.srv import SetBool
+from std_srvs.srv import SetBool, Trigger
 
 
 class Ros2LaunchParent:
@@ -66,39 +31,65 @@ class Ros2LaunchParent:
             asyncio.ensure_future(launch_service.shutdown(), loop=loop)
             loop.run_until_complete(launch_task)
 
-# class MyRos2Launcher(Ros2LaunchParent):
-#     def __init__(self):
-#         super().__init__()
-
 class LaunchServiceAsync(Node):
 
     def __init__(self):
-        super().__init__('LegConnection_service'):
-        self.srv() = self.create_service(Trigger, 'leg_trigger', self.callback_trigger)
+        super().__init__('LegConnection_service')
+        self.srv = self.create_service(SetBool, 'leg_trigger', self.callback_trigger)
+        self.ReqBool = SetBool.Request()
 
-    def callback_trigger(self):
+        self.launcher = Ros2LaunchParent()
+        self.launch_description = generate_launch_description()
+
+    def callback_trigger(self, request, response):
+        self.ReqBool = request
+        # print(self.ReqBool.data)
+        self.get_logger().info(f'Received request: {self.ReqBool.data}')
+        
+        if self.ReqBool.data == True:
+            # self.launch_main(True)
+            time.sleep(3)
+            self.launcher.start(self.launch_description)
+
+        elif self.ReqBool.data == False:
+            # self.launch_main(False)
+            time.sleep(3)
+            self.launcher.shutdown()
+
+        response.message = "None"
+        return response
 
 
-def launc_main(args=None):
-    launcher = Ros2LaunchParent()
-    launch_description = generate_launch_description()
+
+    # def launch_main(self, trigger):
+    #     launcher = Ros2LaunchParent()
+    #     launch_description = generate_launch_description()
+
+    #     if trigger == True:
+    #         time.sleep(5)
+    #         launcher.start(launch_description)
+    #         # time.sleep(5)
+    #         # launcher.shutdown()
+
+    #         # Sleep indefinitely, or until the service receives a request with data=False
+    #         # i=0
+    #         while True:
+    #             print("running")
+    #             # i+=1
+    #             time.sleep(1)
+    #             if self.ReqBool.data == "False":
+    #                 break
+
+    #         # Shutdown the launcher when data=False is received
+    #         launcher.shutdown()
     
-    try:
-        launcher.start(launch_description)
-        # Your main application code can run here
-        time.sleep(10)
-        launcher.shutdown()
-
-    except KeyboardInterrupt:
-        pass
-    finally:
-        launcher.shutdown()
-
 def main(args=None):
     rclpy.init(args=args)
-    client = LaunchServiceAsync()
+    service = LaunchServiceAsync()
 
-    client.destroy_node()
+    rclpy.spin(service)
+    
+    sevice.destroy_node()
     rclpy.shutdown()
 
 
