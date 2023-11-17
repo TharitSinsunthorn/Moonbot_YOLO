@@ -197,6 +197,9 @@ class JointsDetection(Node):
             classes = classes.cpu().numpy()
 
             rects = []
+
+            self.get_logger().info(" is detected")
+
             for i in range(len(xywh)):
                 obj = [[xywh[i][0],xywh[i][1]],[xywh[i][2],xywh[i][3]],[xyxy[i][0],xyxy[i][1]],[xyxy[i][2],xyxy[i][3]], classes[i]] 
                 # [center coordinate] , [width and height bounding box], [top left corner coord], [bottom right corner coord], classe of the detected obj

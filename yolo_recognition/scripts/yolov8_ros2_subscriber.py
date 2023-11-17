@@ -35,6 +35,7 @@ class Yolo_subscriber(Node):
     def __init__(self):
         super().__init__('yolo_subscriber')
 
+        
         self.subscription = self.create_subscription(
             Yolov8Inference,
             '/Yolov8_Inference',
@@ -44,7 +45,7 @@ class Yolo_subscriber(Node):
 
         # self.timer = self.create_timer(1.0, self.timer_callback)
 
-        self.class_name = None
+        self.class_name = []
         self.top = None 
         self.left = None
         self.bottom = None
@@ -58,28 +59,41 @@ class Yolo_subscriber(Node):
 
     def yolo_callback(self, data):
         # global img
-        # self.get_logger().info(str(data.yolov8_inference.class_name))
+        # self.get_logger().info(f"{data.yolov8_inference}")
+
         for r in data.yolov8_inference:
-            self.class_name = r.class_name
+
+            self.class_name.append(r.class_name)
             self.top = r.top
             self.left = r.left
             self.bottom = r.bottom
             self.right = r.right
 
-            if self.class_name == "leg" and self.leg_detected == False:
-                time.sleep(3)
-                self.leg_detected = True
-                self.last_leg_detected == time.time()
-                self.get_logger().info(f"{self.class_name} is detected")
+        # self.get_logger().info(f"{self.class_name}")
+        
 
-            elif self.class_name != "leg" and self.leg_detected == True:
-                self.leg_detected = False
-                # self.get_logger().infor()
-            # cv2.rectangle(img, (top, left), (bottom, right), (255, 255, 0))
+        if "leg" in self.class_name and self.leg_detected == False:
+        #   time.sleep(3)
+            self.leg_detected = True
+            self.last_leg_detected == time.time()
+            self.get_logger().info(f"leg is detected")
 
-        patient = time.time() - self.last_leg_detected
-        if not self.leg_detected and patient >= 5:
-            self.get_logger().info("No leg connection")
+        elif "leg" not in self.class_name and self.leg_detected == True:
+            self.leg_detected = False
+            self.get_logger().info(f"leg is disconnected")
+        #         # self.get_logger().infor()
+        #     # cv2.rectangle(img, (top, left), (bottom, right), (255, 255, 0))
+        elif "leg" in self.class_name and self.leg_detected == True:
+            self.get_logger().info(f"leg is connected")
+
+        elif "leg" not in self.class_name and self.leg_detected == False:
+            self.get_logger().info(f"No leg detected")
+
+        self.class_name.clear()
+
+        # patient = time.time() - self.last_leg_detected
+        # if not self.leg_detected and patient >= 5:
+        #     self.get_logger().info("No leg connection")
 
         # self.cnt = 0 
         # img_msg = bridge.cv2_to_imgmsg(img)

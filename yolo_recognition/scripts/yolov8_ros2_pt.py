@@ -57,7 +57,8 @@ class Camera_subscriber(Node):
 		results = self.model.predict(
 			source=img, 
 			conf=0.7,
-			show_conf=True)
+			iou=0.35,
+			classes=[3,4,5])
 
 		# Adding framerate and timestamp to a header of YOLOv8 inference msg
 		self.yolov8_inference.header.frame_id = "inference"

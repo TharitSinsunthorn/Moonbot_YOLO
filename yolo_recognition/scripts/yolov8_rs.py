@@ -25,8 +25,8 @@ align_to = rs.stream.color
 align = rs.align(align_to)
 
 # Define YOLO model
-model_directory = '/home/tharit/realsense_ws/src/yolotraining/runs/detect/yolov8n_v8_50e/weights/best.pt'
-# print(model_directory)
+# model_directory = '/home/tharit/realsense_ws/src/yolotraining/runs/detect/yolov8n_v8_50e/weights/best.pt'
+model_directory = '/home/tharit/realsense_ws/src/yolotraining/yolov8n.pt'
 model = YOLO(model_directory)
 
 
@@ -49,18 +49,27 @@ while True:
     # Inference is done here
     results = model.predict(
             source=color_image, 
-            conf=0.8,
-            show_conf=False)
+            conf=0.5,
+            iou=0.75)
 
     for r in results: 
         boxes = r.boxes
+        print(r.keypoints)
         for box in boxes:
-            b = box.xyxy[0].to('cpu').detach().numpy().copy() # get box coordinates in (top, left, bottom, right) format
+            b = box.xyxy[0].cpu().detach().numpy().copy() # get box coordinates in (top, left, bottom, right) format
             c = box.cls                                       # Obtain index of detected class
 
             # Draw a rectangle on a depth color map and put the text on the rectangle
+            # For xyxy
             cv2.rectangle(depth_colormap, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (0, 0, 255),
                             thickness = 2, lineType=cv2.LINE_4)
+            # For xywh
+            # cv2.rectangle(depth_colormap, (int(b[0]-b[2]/2), int(b[1]+b[3]/2)), (int(b[0]+b[2]/2), int(b[1]-b[3]/2)), (0, 0, 255),
+            #                 thickness = 2, lineType=cv2.LINE_4)
+
+            cv2.rectangle(depth_colormap, (0, 0), (200, 200), (0, 255, 255),
+                            thickness = 2, lineType=cv2.LINE_4)
+
             cv2.putText(depth_colormap, text = model.names[int(c)], org=(int(b[0]), int(b[1])),
                         fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 0.7, color = (0, 0, 255),
                         thickness = 2, lineType=cv2.LINE_4)

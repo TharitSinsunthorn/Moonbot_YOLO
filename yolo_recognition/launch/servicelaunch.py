@@ -41,6 +41,10 @@ import multiprocessing
 from launch import LaunchService
 from yolo import generate_launch_description
 
+import rclpy
+from rclpy.node import Node
+from std_srvs.srv import SetBool
+
 
 class Ros2LaunchParent:
     def start(self, launch_description):
@@ -62,21 +66,41 @@ class Ros2LaunchParent:
             asyncio.ensure_future(launch_service.shutdown(), loop=loop)
             loop.run_until_complete(launch_task)
 
-class MyRos2Launcher(Ros2LaunchParent):
-    def __init__(self):
-        super().__init__()
+# class MyRos2Launcher(Ros2LaunchParent):
+#     def __init__(self):
+#         super().__init__()
 
-if __name__ == "__main__":
-    launcher = MyRos2Launcher()
+class LaunchServiceAsync(Node):
+
+    def __init__(self):
+        super().__init__('LegConnection_service'):
+        self.srv() = self.create_service(Trigger, 'leg_trigger', self.callback_trigger)
+
+    def callback_trigger(self):
+
+
+def launc_main(args=None):
+    launcher = Ros2LaunchParent()
     launch_description = generate_launch_description()
     
     try:
         launcher.start(launch_description)
         # Your main application code can run here
-        time.sleep(5)
+        time.sleep(10)
         launcher.shutdown()
 
     except KeyboardInterrupt:
         pass
     finally:
         launcher.shutdown()
+
+def main(args=None):
+    rclpy.init(args=args)
+    client = LaunchServiceAsync()
+
+    client.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()
