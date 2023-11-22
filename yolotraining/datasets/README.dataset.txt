@@ -1,6 +1,6 @@
-# moonbot_v3 > 2023-11-08 4:58pm
-https://universe.roboflow.com/unitsassembly/moonbot_v3
+# self-perception > 2023-11-20 4:57pm
+https://universe.roboflow.com/srlmoonbot-ccw1g/self-perception
 
 Provided by a Roboflow user
-License: MIT
+License: CC BY 4.0
 
