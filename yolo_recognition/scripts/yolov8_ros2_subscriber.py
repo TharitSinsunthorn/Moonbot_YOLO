@@ -45,6 +45,8 @@ class Yolo_subscriber(Node):
         self.right = None
 
         self.last_leg_detected = 0.0
+        self.patient = 0
+        self.leg_isback = False
         self.leg_detected = False
 
 
@@ -78,18 +80,29 @@ class Yolo_subscriber(Node):
             self.send_request(True)
 
         elif "leg" not in self.class_name and self.leg_detected == True:
-            self.leg_detected = False
-            self.get_logger().info(f"leg is disconnected")
-            self.send_request(False)
+            # self.last_leg_detected = time.time()
+            self.patient += 1
+            
+            if self.patient >= 5:
+                self.leg_detected = False
+                self.get_logger().info(f"leg is disconnected")
+                self.send_request(False)
+                self.patient = 0
+            else:
+                self.get_logger().info(f"wait")
+                pass
 
         
         elif "leg" in self.class_name and self.leg_detected == True:
             self.get_logger().info(f"leg is detected")
+            self.patient = 0
 
         elif "leg" not in self.class_name and self.leg_detected == False:
             self.get_logger().info(f"No leg detected")
 
+        # print(self.patient)
         self.class_name.clear()
+        time.sleep(1)
 
 
     def timer_callback(self):
@@ -99,14 +112,7 @@ class Yolo_subscriber(Node):
 def main(args=None):
     rclpy.init(args=None)
     yolo_subscriber = Yolo_subscriber()
-    # camera_subscriber = Camera_subscriber()
-
-    # executor = MultiThreadedExecutor()
-    # executor.add_node(yolo_subscriber)
-    # executor.add_node(camera_subscriber)
-
-    # executor_thread = threading.Thread(target=executor.spin, daemon=True)
-    # executor_thread.start()
+    
 
     # rate = yolo_subscriber.create_rate(2)
     # try:
@@ -116,8 +122,8 @@ def main(args=None):
     #   pass 
 
     rclpy.spin(yolo_subscriber)
+    yolo_subscriber.destroy_node()
     rclpy.shutdown()
-    # executor_thread.join
 
 if __name__ == '__main__':
     main()

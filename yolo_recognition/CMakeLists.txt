@@ -47,6 +47,8 @@ install(
     scripts/yolov8_ros2_pt.py
     scripts/yolov8_ros2_subscriber.py
     scripts/obj_position.py
+    scripts/serlaunch.py
+    launch/servicelaunch.py
 
   DESTINATION
     lib/${PROJECT_NAME}

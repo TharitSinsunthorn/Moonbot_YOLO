@@ -26,7 +26,8 @@ align = rs.align(align_to)
 
 # Define YOLO model
 # model_directory = '/home/tharit/realsense_ws/src/yolotraining/runs/detect/yolov8n_v8_50e/weights/best.pt'
-model_directory = '/home/tharit/realsense_ws/src/yolotraining/yolov8n.pt'
+model_directory = '/home/tharit/realsense_ws/src/yolotraining/runs/detect/moonbot_perception/weights/best.pt'
+# model_directory = '/home/tharit/realsense_ws/src/yolotraining/yolov8n.pt'
 model = YOLO(model_directory)
 
 
@@ -49,7 +50,7 @@ while True:
     # Inference is done here
     results = model.predict(
             source=color_image, 
-            conf=0.5,
+            conf=0.2,
             iou=0.75)
 
     for r in results: 

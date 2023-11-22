@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from ultralytics import YOLO 
 
 # Load the model
@@ -7,7 +9,7 @@ model = YOLO('yolov8n.pt')
 results = model.train(
     data = 'datasets/data.yaml',
     imgsz = 640,
-    epochs = 10,
+    epochs = 60,
     batch = 8,
-    name = 'yolov8n_v8_50e'
+    name = 'moonbot_perception'
 )

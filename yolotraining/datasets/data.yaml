@@ -2,12 +2,12 @@ train: ../train/images
 val: ../valid/images
 test: ../test/images
 
-nc: 6
-names: ['body', 'body_connector', 'gripper', 'leg', 'leg_connector', 'leg_marker']
+nc: 5
+names: ['body_connector', 'connection', 'leg', 'leg_connector', 'marker']
 
 roboflow:
-  workspace: unitsassembly
-  project: moonbot_v3
-  version: 1
-  license: MIT
-  url: https://universe.roboflow.com/unitsassembly/moonbot_v3/dataset/1
+  workspace: srlmoonbot-ccw1g
+  project: self-perception
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/srlmoonbot-ccw1g/self-perception/dataset/3
