@@ -61,8 +61,8 @@ class Camera_subscriber(Node):
 			classes=[3,4,5])
 
 		# Adding framerate and timestamp to a header of YOLOv8 inference msg
-		self.yolov8_inference.header.frame_id = "inference"
-		self.yolov8_inference.header.stamp = Camera_subscriber().get_clock().now().to_msg()
+		# self.yolov8_inference.header.frame_id = "inference"
+		# self.yolov8_inference.header.stamp = Camera_subscriber().get_clock().now().to_msg()
 
 		# Putting an array inference results of each object
 		for r in results:
@@ -93,21 +93,25 @@ class Camera_subscriber(Node):
 
 def main(args=None):
 	rclpy.init(args=None)
-	try:
-		camera_subsciber = Camera_subscriber()
+	camera_subsciber = Camera_subscriber()
+	rclpy.spin(camera_subsciber)
+	camera_subsciber.destroy_node()
+	rclpy.shutdown()
+	# try:
+	# 	camera_subsciber = Camera_subscriber()
 
-		executor = MultiThreadedExecutor()
-		executor.add_node(camera_subsciber)
+	# 	executor = MultiThreadedExecutor()
+	# 	executor.add_node(camera_subsciber)
 
-		try:
-			executor.spin()
-		finally:
-			executor.shutdown()
+	# 	try:
+	# 		executor.spin()
+	# 	finally:
+	# 		executor.shutdown()
 	
-	finally:
-		# rclpy.spin(camera_subsciber)
-		camera_subsciber.destroy_node()
-		rclpy.shutdown()
+	# finally:
+	# 	# rclpy.spin(camera_subsciber)
+	# 	camera_subsciber.destroy_node()
+	# 	rclpy.shutdown()
 
 
 if __name__ == '__main__':

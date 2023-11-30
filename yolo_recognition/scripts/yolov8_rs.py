@@ -51,7 +51,7 @@ while True:
     results = model.predict(
             source=color_image, 
             conf=0.2,
-            iou=0.75)
+            iou=0.75, stream=True)
 
     for r in results: 
         boxes = r.boxes
@@ -75,8 +75,10 @@ while True:
                         fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 0.7, color = (0, 0, 255),
                         thickness = 2, lineType=cv2.LINE_4)
 
+        annotated_frame = r.plot()
+
     # Obtain inference result image from YOLO
-    annotated_frame = results[0].plot()
+    # annotated_frame = results[0].plot()
 
 
     depth_colormap_dim = depth_colormap.shape
